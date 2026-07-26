@@ -5,7 +5,7 @@ export type DemoItem = PriceItem & {
   merchantAddress: string;
 };
 
-export const DEMO_MERCHANT_ADDRESS = 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGZFH3UWUYNV4';
+export const DEMO_MERCHANT_ADDRESS = 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGZFH3UWUYNV4_ROSA_DEMO';
 
 const merchantId = '11111111-1111-4111-8111-111111111111';
 const demoItems: DemoItem[] = [
