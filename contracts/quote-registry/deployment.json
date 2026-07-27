@@ -1,7 +1,7 @@
 {
   "projectId": "017",
   "contractName": "kurs-quote-registry-contract",
-  "deployer": "GCY6FFLRRQXWRRZLF3PR35KY5IGBKMDBDASKLYOGQGRN2XCXQ2EGNUQX",
+  "deployer": "GB7CLQ3LBM2TTYWVP4J3EU74YLYOPC5XX2MO77TIUECW4XPXNX67T4PL",
   "sdkVersion": "27.0.2",
   "wasmPath": "contracts/quote-registry/target/wasm32v1-none/release/kurs_quote_registry_contract.wasm",
   "wasmSha256": "b63f93ff5d35e24d53d92cb27ea473e03f7efcb2121b2dfb330df80d2ea6e0ba",

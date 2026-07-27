@@ -9,7 +9,7 @@ const {
   rpc,
 } = require('@stellar/stellar-sdk');
 
-const SOURCE = 'GCY6FFLRRQXWRRZLF3PR35KY5IGBKMDBDASKLYOGQGRN2XCXQ2EGNUQX';
+const SOURCE = 'GB7CLQ3LBM2TTYWVP4J3EU74YLYOPC5XX2MO77TIUECW4XPXNX67T4PL';
 const ROOT = path.resolve(__dirname, '..');
 const WASM_PATH = path.resolve(ROOT, 'contracts/quote-registry/target/wasm32v1-none/release/kurs_quote_registry_contract.wasm');
 const WASM_HASH = 'b63f93ff5d35e24d53d92cb27ea473e03f7efcb2121b2dfb330df80d2ea6e0ba';
