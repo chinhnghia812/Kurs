@@ -24,6 +24,14 @@
         "stage": "initialize",
         "hash": "f2182b00aea971a5d21e2f86d9341460acc925b1e02906c5454e1343c7884373",
         "url": "https://stellarchain.io/transactions/f2182b00aea971a5d21e2f86d9341460acc925b1e02906c5454e1343c7884373"
+      },
+      {
+        "stage": "publish-rate",
+        "pair": "USD/XLM",
+        "numerator": 1,
+        "denominator": 10,
+        "hash": "e97bc1593486b0f4f957c46425627d4fae540e34326671812f37ec3400594e8a",
+        "url": "https://stellarchain.io/transactions/e97bc1593486b0f4f957c46425627d4fae540e34326671812f37ec3400594e8a"
       }
     ]
   }
