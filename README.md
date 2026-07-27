@@ -15,7 +15,7 @@ Live preview: [kurs-fx-widget.vercel.app](https://017-multi-currency-price-tag-f
 
 ## Readiness status
 
-This repository is in hackathon readiness hardening. The catalog preview and simulation endpoint are demo-only, while the Freighter path prepares and verifies a real classic USDC payment on the configured network. The live Vercel preview is demo/testnet-configured; no mainnet transaction is claimed yet.
+This repository is in hackathon readiness hardening. The catalog preview and simulation endpoint are demo-only, while the Freighter path prepares and verifies a real classic USDC payment on the configured network. The live Vercel preview is demo/testnet-configured; no classic-payment mainnet transaction is claimed yet.
 
 See [`docs/MAINNET_READINESS.md`](docs/MAINNET_READINESS.md) for the evidence checklist.
 
@@ -47,3 +47,18 @@ The production-shaped payment path is `POST /api/payments/prepare`, followed by 
 5. Approve the signature; the app verifies and submits the signed XDR, then shows the transaction hash.
 
 The current configured asset is USDC. A real payment requires the sender and merchant to exist on the selected network and hold the configured USDC trustline.
+
+## Soroban contract
+
+The repository includes an independent Soroban `quote-registry` contract for the hackathon technical requirement. It publishes short-lived FX rates, creates payment quotes, and marks quotes paid after payer authorization; the existing classic USDC payment remains the settlement flow.
+
+- Source: [`contracts/quote-registry/src/lib.rs`](contracts/quote-registry/src/lib.rs)
+- WASM SHA-256: `b63f93ff5d35e24d53d92cb27ea473e03f7efcb2121b2dfb330df80d2ea6e0ba`
+- Deployment metadata and unsigned-XDR workflow: [`contracts/quote-registry/`](contracts/quote-registry/)
+
+Build and test locally:
+
+```bash
+cargo test --offline --manifest-path contracts/quote-registry/Cargo.toml
+rustup run stable cargo build --manifest-path contracts/quote-registry/Cargo.toml --target wasm32v1-none --release
+```

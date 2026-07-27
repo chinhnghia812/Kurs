@@ -1,0 +1,9 @@
+{
+  "projectId": "017",
+  "contractName": "kurs-quote-registry-contract",
+  "sdkVersion": "27.0.2",
+  "wasmPath": "contracts/quote-registry/target/wasm32v1-none/release/kurs_quote_registry_contract.wasm",
+  "wasmSha256": "b63f93ff5d35e24d53d92cb27ea473e03f7efcb2121b2dfb330df80d2ea6e0ba",
+  "testnet": { "status": "not-deployed", "contractId": null, "transactions": [] },
+  "mainnet": { "status": "not-deployed", "contractId": null, "transactions": [] }
+}
