@@ -6,5 +6,25 @@
   "wasmPath": "contracts/quote-registry/target/wasm32v1-none/release/kurs_quote_registry_contract.wasm",
   "wasmSha256": "b63f93ff5d35e24d53d92cb27ea473e03f7efcb2121b2dfb330df80d2ea6e0ba",
   "testnet": { "status": "not-deployed", "contractId": null, "transactions": [] },
-  "mainnet": { "status": "not-deployed", "contractId": null, "transactions": [] }
+  "mainnet": {
+    "status": "deployed",
+    "contractId": "CCZCCNJG5KVDGHFFV7RC7IJQ5LJC5HUYRZWFCTLAXVWGXXHGB4AGBXTT",
+    "transactions": [
+      {
+        "stage": "upload",
+        "hash": "cb9b6eec09f343cc89ae51a43d88a987895e9ccdd84da4852f1c7e692b376f15",
+        "url": "https://stellarchain.io/transactions/cb9b6eec09f343cc89ae51a43d88a987895e9ccdd84da4852f1c7e692b376f15"
+      },
+      {
+        "stage": "deploy",
+        "hash": "5058cf8d6c36e94f8faf49caa4b56282e53d3e89ce94b610309e805567b403a9",
+        "url": "https://stellarchain.io/transactions/5058cf8d6c36e94f8faf49caa4b56282e53d3e89ce94b610309e805567b403a9"
+      },
+      {
+        "stage": "initialize",
+        "hash": "f2182b00aea971a5d21e2f86d9341460acc925b1e02906c5454e1343c7884373",
+        "url": "https://stellarchain.io/transactions/f2182b00aea971a5d21e2f86d9341460acc925b1e02906c5454e1343c7884373"
+      }
+    ]
+  }
 }
