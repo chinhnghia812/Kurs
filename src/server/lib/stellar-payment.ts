@@ -25,7 +25,8 @@ export function getUsdcAsset(): Asset {
   return new Asset(env.USDC_ASSET_CODE, USDC_ASSET_ISSUER_VALUE);
 }
 
-function amountFromMinor(amountMinor: string): string {
+/** Convert this app's six-decimal USDC storage units to Stellar's seven decimals. */
+export function amountFromMinor(amountMinor: string): string {
   if (!/^\d+$/.test(amountMinor) || BigInt(amountMinor) <= 0n) {
     throw new AppError(
       'INVALID_INPUT',
@@ -34,7 +35,9 @@ function amountFromMinor(amountMinor: string): string {
     );
   }
   const amount = BigInt(amountMinor);
-  return `${amount / 10_000_000n}.${(amount % 10_000_000n).toString().padStart(7, '0')}`;
+  const whole = amount / 1_000_000n;
+  const fractional = (amount % 1_000_000n) * 10n;
+  return `${whole}.${fractional.toString().padStart(7, '0')}`;
 }
 
 export function validateStellarAddress(address: string): void {

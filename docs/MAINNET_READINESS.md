@@ -1,8 +1,8 @@
 # Mainnet readiness
 
-Kurs is currently a hackathon demo. The public preview uses in-memory demo data so the price widget and SEP-7 request flow can be reviewed without a database or wallet secret.
+Kurs is currently a hackathon demo. The public preview uses in-memory demo data so the price widget and SEP-7 request flow can be reviewed without a database. A real testnet payment path is available through Freighter, but it requires configured accounts and is not mainnet evidence.
 
-Before enabling wallet signing or mainnet payments, configure and verify:
+Before treating the flow as production or using mainnet, configure and verify:
 
 - a production database and migration;
 - a real Stellar merchant account and USDC trustline;

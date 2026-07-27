@@ -26,7 +26,7 @@ async function seed() {
     .insert(merchants)
     .values({
       name: "Rosa's Sari-Sari Store",
-      stellarAddress: 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGZFH3UWUYNV4_ROSA_DEMO',
+      stellarAddress: 'GDQP2KPQGKIHYJGXNUIYOMHARUARCA7DJT5FO2FFOOKY3B2WSQHG4W37',
     })
     .returning();
 

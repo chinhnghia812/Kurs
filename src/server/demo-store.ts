@@ -5,7 +5,9 @@ export type DemoItem = PriceItem & {
   merchantAddress: string;
 };
 
-export const DEMO_MERCHANT_ADDRESS = 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGZFH3UWUYNV4_ROSA_DEMO';
+// Valid testnet account used only for the preview catalog. A real payment still
+// requires this account (or a configured merchant account) to hold the USDC trustline.
+export const DEMO_MERCHANT_ADDRESS = 'GDQP2KPQGKIHYJGXNUIYOMHARUARCA7DJT5FO2FFOOKY3B2WSQHG4W37';
 
 const merchantId = '11111111-1111-4111-8111-111111111111';
 const demoItems: DemoItem[] = [
@@ -70,6 +72,14 @@ export function markDemoPaymentPaid(id: string, txHash: string | null): Payment 
   const payment = demoPayments.get(id);
   if (!payment) throw new Error(`Demo payment ${id} not found`);
   const updated = { ...payment, status: 'paid' as const, stellarTxHash: txHash };
+  demoPayments.set(id, updated);
+  return updated;
+}
+
+export function updateDemoPayment(id: string, updates: Partial<Payment>): Payment {
+  const payment = demoPayments.get(id);
+  if (!payment) throw new Error(`Demo payment ${id} not found`);
+  const updated = { ...payment, ...updates };
   demoPayments.set(id, updated);
   return updated;
 }

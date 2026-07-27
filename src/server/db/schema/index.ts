@@ -1,4 +1,13 @@
-import { index, pgEnum, pgTable, real, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  index,
+  pgEnum,
+  pgTable,
+  real,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core';
 
 // ── Merchants ──────────────────────────────────────────────────────────────────
 export const merchants = pgTable(
@@ -64,8 +73,13 @@ export const payments = pgTable(
     itemId: uuid('item_id')
       .notNull()
       .references(() => priceItems.id, { onDelete: 'cascade' }),
-    amountUsdc: text('amount_usdc').notNull(), // 6-decimal bigint string
+    amountUsdc: text('amount_usdc').notNull(), // 6-decimal USDC bigint string; converted to 7 Stellar decimals at the boundary
     stellarTxHash: text('stellar_tx_hash'),
+    senderAddress: text('sender_address'),
+    recipientAddress: text('recipient_address'),
+    idempotencyKey: text('idempotency_key'),
+    unsignedXdr: text('unsigned_xdr'),
+    unsignedTxDigest: text('unsigned_tx_digest'),
     status: paymentStatusEnum('status').notNull().default('pending'),
     memo: text('memo').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -73,6 +87,7 @@ export const payments = pgTable(
   (t) => ({
     itemIdx: index('payments_item_idx').on(t.itemId),
     statusIdx: index('payments_status_idx').on(t.status),
+    idempotencyIdx: uniqueIndex('payments_idempotency_key_idx').on(t.idempotencyKey),
   }),
 );
 export type Payment = typeof payments.$inferSelect;

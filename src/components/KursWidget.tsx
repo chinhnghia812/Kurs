@@ -1,6 +1,16 @@
 'use client';
 
-import { CheckCircle2, Copy, RefreshCw, ShoppingCart, Tag, TrendingUp, Wifi } from 'lucide-react';
+import { getAddress, setAllowed, signTransaction } from '@stellar/freighter-api';
+import {
+  CheckCircle2,
+  Copy,
+  RefreshCw,
+  ShoppingCart,
+  Tag,
+  TrendingUp,
+  Wallet,
+  Wifi,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CurrencyCode, FxRates } from '../lib/fx-client';
 import { convertUsdcToDisplay } from '../lib/fx-client';
@@ -56,6 +66,10 @@ export function KursWidget() {
   const [flashedPrices, setFlashedPrices] = useState<Set<string>>(new Set());
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [simulating, setSimulating] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [walletBusy, setWalletBusy] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [walletError, setWalletError] = useState('');
   const prevRatesRef = useRef<FxRates | null>(null);
   const sseRef = useRef<EventSource | null>(null);
 
@@ -195,6 +209,65 @@ export function KursWidget() {
     }
   };
 
+  const handleConnect = async () => {
+    setWalletBusy(true);
+    setWalletError('');
+    try {
+      const permission = await setAllowed();
+      if (permission.error || !permission.isAllowed) {
+        throw new Error(permission.error?.message ?? 'Freighter access was not allowed');
+      }
+      const result = await getAddress();
+      if (result.error || !result.address) {
+        throw new Error(result.error?.message ?? 'No wallet address returned');
+      }
+      setWalletAddress(result.address);
+    } catch (error) {
+      setWalletError(error instanceof Error ? error.message : 'Could not connect Freighter');
+    } finally {
+      setWalletBusy(false);
+    }
+  };
+
+  const handlePayWithFreighter = async () => {
+    if (!payment || !walletAddress) return;
+    setPaying(true);
+    setWalletError('');
+    try {
+      const preparedResponse = await fetch('/api/payments/prepare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId: payment.id, senderAddress: walletAddress }),
+      });
+      const prepared = await preparedResponse.json();
+      if (!prepared.ok) throw new Error(prepared.error?.message ?? 'Could not prepare payment');
+
+      const signed = await signTransaction(prepared.data.unsignedXdr, {
+        address: walletAddress,
+        networkPassphrase: prepared.data.networkPassphrase,
+      });
+      if (signed.error || !signed.signedTxXdr) {
+        throw new Error(signed.error?.message ?? 'Freighter did not return a signature');
+      }
+
+      const confirmedResponse = await fetch(`/api/payments/${payment.id}/confirm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signedXdr: signed.signedTxXdr }),
+      });
+      const confirmed = await confirmedResponse.json();
+      if (!confirmed.ok) throw new Error(confirmed.error?.message ?? 'Could not confirm payment');
+      setPayment((current) =>
+        current ? { ...current, status: 'paid', stellarTxHash: confirmed.data.txHash } : current,
+      );
+      setPaymentStatus('paid');
+    } catch (error) {
+      setWalletError(error instanceof Error ? error.message : 'Payment failed');
+    } finally {
+      setPaying(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-amber-50">
       {/* Header */}
@@ -217,6 +290,19 @@ export function KursWidget() {
             <Wifi className="w-4 h-4 text-green-500" />
             <span className="text-green-600 font-medium">Live</span>
             {lastUpdated && <span className="text-gray-400">· updated {lastUpdated}</span>}
+            <button
+              type="button"
+              onClick={handleConnect}
+              disabled={walletBusy}
+              className="ml-2 inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-50"
+            >
+              <Wallet className="h-3.5 w-3.5" />
+              {walletBusy
+                ? 'Connecting…'
+                : walletAddress
+                  ? `${walletAddress.slice(0, 5)}…${walletAddress.slice(-4)}`
+                  : 'Connect Freighter'}
+            </button>
           </div>
         </div>
       </header>
@@ -452,6 +538,20 @@ export function KursWidget() {
 
                           <button
                             type="button"
+                            onClick={walletAddress ? handlePayWithFreighter : handleConnect}
+                            disabled={paying || walletBusy}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-700 text-white rounded-xl font-semibold hover:bg-amber-800 transition-colors disabled:opacity-50"
+                          >
+                            {paying || walletBusy ? (
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Wallet className="w-4 h-4" />
+                            )}
+                            {walletAddress ? 'Pay with Freighter' : 'Connect Freighter to pay'}
+                          </button>
+
+                          <button
+                            type="button"
                             onClick={handleSimulatePay}
                             disabled={simulating}
                             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-xl text-sm font-medium hover:bg-green-100 transition-colors disabled:opacity-50"
@@ -465,8 +565,15 @@ export function KursWidget() {
                           </button>
                         </div>
 
+                        {walletError && (
+                          <p className="text-xs leading-5 text-red-600" role="alert">
+                            {walletError}
+                          </p>
+                        )}
+
                         <p className="text-xs text-center text-gray-400">
-                          Scan with Freighter or any Stellar wallet
+                          Freighter signs the payment; the server verifies the intent before
+                          submission.
                         </p>
                       </div>
                     ) : null}
