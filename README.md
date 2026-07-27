@@ -2,6 +2,8 @@
 
 An FX-aware price tag and payment request experience for Stellar issued assets.
 
+Live preview: [kurs-fx-widget.vercel.app](https://017-multi-currency-price-tag-fx-wid.vercel.app/)
+
 ## Stellar surface
 
 - Classic Stellar USDC uses seven-decimal stroops (`1 USDC = 10,000,000`)
@@ -13,7 +15,7 @@ An FX-aware price tag and payment request experience for Stellar issued assets.
 
 ## Readiness status
 
-This repository is in hackathon readiness hardening. The catalog preview and simulation endpoint are demo-only, while the Freighter path prepares and verifies a real classic USDC payment on the configured network. No mainnet deployment or transaction proof is claimed yet.
+This repository is in hackathon readiness hardening. The catalog preview and simulation endpoint are demo-only, while the Freighter path prepares and verifies a real classic USDC payment on the configured network. The live Vercel preview is demo/testnet-configured; no mainnet transaction is claimed yet.
 
 See [`docs/MAINNET_READINESS.md`](docs/MAINNET_READINESS.md) for the evidence checklist.
 
@@ -35,3 +37,13 @@ Keep all credentials outside Git. The browser wallet signs; the server never rec
 Mainnet requires a real quote provider, issuer configuration, wallet-signed payment, Horizon confirmation, idempotency, and an auditable quote/payment reconciliation path.
 
 The production-shaped payment path is `POST /api/payments/prepare`, followed by Freighter signing and `POST /api/payments/:id/confirm`. The server never stores or receives a secret key. Apply the `drizzle/0001_unsigned_payment_intents.sql` migration before using a persistent database. See [`docs/TESTNET_PAYMENT_RUNBOOK.md`](docs/TESTNET_PAYMENT_RUNBOOK.md) for the operator flow.
+
+## Friend transaction flow
+
+1. Open the live preview in Chrome with Freighter installed.
+2. Select a menu item and click **Connect Freighter**.
+3. Click **Pay with Freighter**.
+4. Review network, sender, merchant, amount, asset, memo, and fee in Freighter.
+5. Approve the signature; the app verifies and submits the signed XDR, then shows the transaction hash.
+
+The current configured asset is USDC. A real payment requires the sender and merchant to exist on the selected network and hold the configured USDC trustline.
