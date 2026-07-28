@@ -56,6 +56,11 @@ The repository includes an independent Soroban `quote-registry` contract for the
 - WASM SHA-256: `b63f93ff5d35e24d53d92cb27ea473e03f7efcb2121b2dfb330df80d2ea6e0ba`
 - Deployment metadata and unsigned-XDR workflow: [`contracts/quote-registry/`](contracts/quote-registry/)
 
+The live UI also exposes a small mainnet contract panel. After connecting Freighter with
+the contract admin wallet, **Read USD/XLM** simulates `get_rate` and **Publish demo rate**
+prepares, asks Freighter to sign, and submits `publish_rate` through Soroban RPC. The
+contract address is fixed in [`src/lib/quote-registry-client.ts`](src/lib/quote-registry-client.ts).
+
 Build and test locally:
 
 ```bash

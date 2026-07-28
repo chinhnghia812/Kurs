@@ -14,6 +14,13 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CurrencyCode, FxRates } from '../lib/fx-client';
 import { convertUsdcToDisplay } from '../lib/fx-client';
+import {
+  isQuoteRegistryAdmin,
+  prepareRatePublication,
+  QUOTE_REGISTRY_CONTRACT,
+  readPublishedRate,
+  submitPreparedTransaction,
+} from '../lib/quote-registry-client';
 
 interface Item {
   id: string;
@@ -70,6 +77,8 @@ export function KursWidget() {
   const [walletBusy, setWalletBusy] = useState(false);
   const [paying, setPaying] = useState(false);
   const [walletError, setWalletError] = useState('');
+  const [contractBusy, setContractBusy] = useState(false);
+  const [contractStatus, setContractStatus] = useState('');
   const prevRatesRef = useRef<FxRates | null>(null);
   const sseRef = useRef<EventSource | null>(null);
 
@@ -268,6 +277,52 @@ export function KursWidget() {
     }
   };
 
+  const handleReadContractRate = async () => {
+    if (!walletAddress) return;
+    setContractBusy(true);
+    setContractStatus('Reading USD/XLM from mainnet…');
+    try {
+      const rate = await readPublishedRate(walletAddress, 'USD/XLM');
+      setContractStatus(
+        `Mainnet USD/XLM: ${rate.numerator.toString()}/${rate.denominator.toString()} · valid until ledger ${rate.valid_until}`,
+      );
+    } catch (error) {
+      setContractStatus(error instanceof Error ? error.message : 'Could not read the mainnet rate');
+    } finally {
+      setContractBusy(false);
+    }
+  };
+
+  const handlePublishContractRate = async () => {
+    if (!walletAddress) return;
+    if (!isQuoteRegistryAdmin(walletAddress)) {
+      setContractStatus('Connect the contract admin wallet to publish a rate.');
+      return;
+    }
+
+    setContractBusy(true);
+    setContractStatus('Preparing a mainnet Soroban transaction…');
+    try {
+      const prepared = await prepareRatePublication(walletAddress, 'USD/XLM', 1n, 10n);
+      const signed = await signTransaction(prepared.toXDR(), {
+        address: walletAddress,
+        networkPassphrase: prepared.networkPassphrase,
+      });
+      if (signed.error || !signed.signedTxXdr) {
+        throw new Error(signed.error?.message ?? 'Freighter did not return a signature');
+      }
+
+      const submitted = await submitPreparedTransaction(signed.signedTxXdr);
+      setContractStatus(`Submitted mainnet transaction ${submitted.hash}`);
+    } catch (error) {
+      setContractStatus(
+        error instanceof Error ? error.message : 'Could not publish the mainnet rate',
+      );
+    } finally {
+      setContractBusy(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-amber-50">
       {/* Header */}
@@ -319,6 +374,40 @@ export function KursWidget() {
           </span>
         </div>
       </div>
+
+      {/* Small mainnet Soroban surface for the deployed quote registry. */}
+      <section className="border-b border-amber-200 bg-amber-100/70 px-6 py-4">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-2xl border border-amber-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-bold text-gray-900">Mainnet quote registry</p>
+            <p className="text-xs text-gray-500">
+              Soroban contract {QUOTE_REGISTRY_CONTRACT.slice(0, 8)}…
+              {QUOTE_REGISTRY_CONTRACT.slice(-6)}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleReadContractRate}
+              disabled={!walletAddress || contractBusy}
+              className="rounded-lg border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+            >
+              Read USD/XLM
+            </button>
+            <button
+              type="button"
+              onClick={handlePublishContractRate}
+              disabled={!walletAddress || contractBusy}
+              className="rounded-lg bg-amber-700 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-800 disabled:opacity-50"
+            >
+              Publish demo rate
+            </button>
+            {contractStatus && (
+              <span className="max-w-xl text-xs text-gray-600">{contractStatus}</span>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* F-layout: left panel + right panel */}
       <div className="max-w-7xl mx-auto p-6">
