@@ -2,7 +2,7 @@
 
 An FX-aware price tag and payment request experience for Stellar issued assets.
 
-Live preview: [kurs-fx-widget.vercel.app](https://017-multi-currency-price-tag-fx-wid.vercel.app/)
+Live application: [kurs-fx-widget.vercel.app](https://017-multi-currency-price-tag-fx-wid.vercel.app/)
 
 ## Stellar surface
 
@@ -13,11 +13,22 @@ Live preview: [kurs-fx-widget.vercel.app](https://017-multi-currency-price-tag-f
 - SEP-7-compatible payment request direction for wallet signing
 - External-signer payment flow: prepare an unsigned XDR, verify the signed digest and exact USDC payment, then submit through Horizon
 
-## Readiness status
+## Mainnet status
 
-This repository is in hackathon readiness hardening. The catalog preview and simulation endpoint are demo-only, while the Freighter path prepares and verifies a real classic USDC payment on the configured network. The live Vercel preview is demo/testnet-configured; no classic-payment mainnet transaction is claimed yet.
+The quote registry is deployed on Stellar Mainnet and the live UI can read and
+publish the `USD/XLM` rate through Freighter.
 
-See [`docs/MAINNET_READINESS.md`](docs/MAINNET_READINESS.md) for the evidence checklist.
+| Evidence | Value |
+|---|---|
+| Network | Stellar Mainnet |
+| Contract ID | `CCZCCNJG5KVDGHFFV7RC7IJQ5LJC5HUYRZWFCTLAXVWGXXHGB4AGBXTT` |
+| Functional call | `publish_rate(USD/XLM, 1/10)` |
+| Functional transaction | [`e97bc1593486b0f4f957c46425627d4fae540e34326671812f37ec3400594e8a`](https://stellar.expert/explorer/public/tx/e97bc1593486b0f4f957c46425627d4fae540e34326671812f37ec3400594e8a) |
+
+The complete upload, deploy, initialize, and publish evidence is recorded in
+[`contracts/quote-registry/deployment.json`](contracts/quote-registry/deployment.json).
+The catalog simulation remains preview-only; it is not counted as blockchain
+evidence.
 
 ## Local demo
 
